@@ -12,15 +12,10 @@
     <style>
         body { margin: 0; padding: 0; }
         #map { height: 100vh; width: 100%; }
+        /* Opcional: Personalizar un poco el popup */
         .custom-popup .leaflet-popup-content-wrapper {
-            background: #2c3e50;
-            color: #fff;
             border-radius: 4px;
         }
-        .custom-popup .leaflet-popup-tip {
-            background: #2c3e50;
-        }
-        .custom-popup a { color: #3498db; }
     </style>
 </head>
 <body>
@@ -41,7 +36,19 @@
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        // 3. Datos de los puntos (Coordenadas aproximadas de los lugares solicitados)
+        // --- NUEVO: Definir el icono ROJO ---
+        // Usamos imágenes alojadas externamente para no tener que subir archivos locales
+        var redIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],    // Tamaño del icono
+            iconAnchor: [12, 41],  // Punto del icono que corresponde a la ubicación
+            popupAnchor: [1, -34], // Punto desde donde se abre el popup
+            shadowSize: [41, 41]   // Tamaño de la sombra
+        });
+        // ------------------------------------
+
+        // 3. Datos de los puntos
         var puntos = [
             { nombre: "Lonja de la Seda", lat: 39.474444, lng: -0.378333 },
             { nombre: "Plaza de la Virgen", lat: 39.476389, lng: -0.375278 },
@@ -52,14 +59,15 @@
             { nombre: "Edificio de Correos", lat: 39.469444, lng: -0.375556 },
             { nombre: "Portal de la Valldigna", lat: 39.477500, lng: -0.378611 },
             { nombre: "Plaza Redonda", lat: 39.473611, lng: -0.376667 },
-            { nombre: "Plaza del Tossal", lat: 39.475833, lng: -0.380000 }, // Coordenada ajustada al centro de la plaza
+            { nombre: "Plaza del Tossal", lat: 39.475833, lng: -0.380000 },
             { nombre: "Calle de los Caballeros", lat: 39.476667, lng: -0.378056 },
-            { nombre: "Calle San Vicente Mártir (Tramo Centro)", lat: 39.473056, lng: -0.375556 } // A la altura de Iglesia de San Martín
+            { nombre: "Calle San Vicente Mártir (Tramo Centro)", lat: 39.473056, lng: -0.375556 }
         ];
 
-        // 4. Bucle para añadir marcadores
+        // 4. Bucle para añadir marcadores usando el icono rojo
         puntos.forEach(function(punto) {
-            L.marker([punto.lat, punto.lng])
+            // Se añade {icon: redIcon} como segundo parámetro
+            L.marker([punto.lat, punto.lng], {icon: redIcon}) 
                 .addTo(map)
                 .bindPopup("<b>" + punto.nombre + "</b>");
         });
