@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turismo en Valencia</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { height: 100vh; width: 100%; } /* El mapa ocupa toda la pantalla */
+        
+        /* Estilo para la ventana de información */
+        .popup-content h3 { margin-top: 0; color: #d35400; }
+        .popup-content img { width: 100%; border-radius: 5px; margin-bottom: 10px; }
+        .popup-content p { font-size: 14px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. Inicializar el mapa centrado en Valencia
+        var map = L.map('map').setView([39.4699, -0.3763], 13);
+
+        // 2. Cargar las capas del mapa (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 3. BASE DE DATOS DE TUS SITIOS
+        // Aquí añades todos los sitios que quieras.
+        var sitiosTuristicos = [
+            {
+                id: "torres",
+                nombre: "Torres de Serranos",
+                lat: 39.4792,
+                lng: -0.3760,
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Torres_de_Serranos_desde_la_plaza_de_los_Fueros.JPG/320px-Torres_de_Serranos_desde_la_plaza_de_los_Fueros.JPG",
+                info: "Una de las dos puertas fortificadas de la muralla medieval de Valencia que aún permanecen en pie."
+            },
+            {
+                id: "oceanografic",
+                nombre: "Oceanogràfic",
+                lat: 39.4528,
+                lng: -0.3482,
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/L%27Oceanogr%C3%A0fic_Valencia_2019.jpg/320px-L%27Oceanogr%C3%A0fic_Valencia_2019.jpg",
+                info: "El acuario más grande de Europa. Ubicado en el complejo arquitectónico vanguardista de la Ciudad de las Artes y las Ciencias."
+            },
+            {
+                id: "mercado",
+                nombre: "Mercado Central",
+                lat: 39.4743,
+                lng: -0.3790,
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Mercat_Central_de_Val%C3%A8ncia%2C_Espanya.jpg/320px-Mercat_Central_de_Val%C3%A8ncia%2C_Espanya.jpg",
+                info: "Una obra maestra del modernismo valenciano. Es uno de los mercados de productos frescos más grandes de Europa."
+            }
+        ];
+
+        // 4. Función para detectar parámetros en la URL (?sitio=...)
+        const params = new URLSearchParams(window.location.search);
+        const sitioSeleccionado = params.get('sitio');
+
+        // 5. Dibujar los marcadores
+        sitiosTuristicos.forEach(sitio => {
+            // Crear contenido HTML del popup
+            var contenido = `
+                <div class="popup-content">
+                    <h3>${sitio.nombre}</h3>
+                    <img src="${sitio.img}" alt="${sitio.nombre}">
+                    <p>${sitio.info}</p>
+                </div>
+            `;
+
+            // Crear el marcador
+            var marker = L.marker([sitio.lat, sitio.lng]).addTo(map);
+            marker.bindPopup(contenido);
+
+            // SI este es el sitio escaneado por el QR, abrimos su info y hacemos zoom
+            if (sitioSeleccionado === sitio.id) {
+                setTimeout(() => {
+                    map.setView([sitio.lat, sitio.lng], 16); // Zoom más cercano
+                    marker.openPopup(); // Abrir la explicación automáticamente
+                }, 500);
+            }
+        });
+
+    </script>
+</body>
+</html>
