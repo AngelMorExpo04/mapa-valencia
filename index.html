@@ -12,10 +12,6 @@
     <style>
         body { margin: 0; padding: 0; }
         #map { height: 100vh; width: 100%; }
-        /* Opcional: Personalizar un poco el popup */
-        .custom-popup .leaflet-popup-content-wrapper {
-            border-radius: 4px;
-        }
     </style>
 </head>
 <body>
@@ -27,50 +23,60 @@
      crossorigin=""></script>
 
     <script>
-        // 1. Inicializar el mapa centrado en el centro histórico de Valencia
-        var map = L.map('map').setView([39.4744, -0.3765], 15);
+        // 1. Inicializamos el mapa SIN coordenadas fijas todavía
+        var map = L.map('map');
 
-        // 2. Añadir la capa de mapa (OpenStreetMap)
+        // 2. Añadir capa de OpenStreetMap
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        // --- NUEVO: Definir el icono ROJO ---
-        // Usamos imágenes alojadas externamente para no tener que subir archivos locales
+        // 3. Definir el Icono Rojo
         var redIcon = new L.Icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41],    // Tamaño del icono
-            iconAnchor: [12, 41],  // Punto del icono que corresponde a la ubicación
-            popupAnchor: [1, -34], // Punto desde donde se abre el popup
-            shadowSize: [41, 41]   // Tamaño de la sombra
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
         });
-        // ------------------------------------
 
-        // 3. Datos de los puntos
+        // 4. Datos de los puntos
         var puntos = [
             { nombre: "Lonja de la Seda", lat: 39.474444, lng: -0.378333 },
             { nombre: "Plaza de la Virgen", lat: 39.476389, lng: -0.375278 },
             { nombre: "Catedral de Valencia", lat: 39.475556, lng: -0.375278 },
             { nombre: "Mercado Central", lat: 39.473611, lng: -0.378889 },
             { nombre: "Torres de Serranos", lat: 39.479167, lng: -0.375833 },
-            { nombre: "Antiguo Hospital (Biblioteca Pública)", lat: 39.470833, lng: -0.381667 },
+            { nombre: "Antiguo Hospital (Biblioteca)", lat: 39.470833, lng: -0.381667 },
             { nombre: "Edificio de Correos", lat: 39.469444, lng: -0.375556 },
             { nombre: "Portal de la Valldigna", lat: 39.477500, lng: -0.378611 },
             { nombre: "Plaza Redonda", lat: 39.473611, lng: -0.376667 },
             { nombre: "Plaza del Tossal", lat: 39.475833, lng: -0.380000 },
             { nombre: "Calle de los Caballeros", lat: 39.476667, lng: -0.378056 },
-            { nombre: "Calle San Vicente Mártir (Tramo Centro)", lat: 39.473056, lng: -0.375556 }
+            { nombre: "Calle San Vicente Mártir", lat: 39.473056, lng: -0.375556 }
         ];
 
-        // 4. Bucle para añadir marcadores usando el icono rojo
+        // --- CAMBIO PRINCIPAL AQUÍ ---
+        
+        // Creamos un grupo especial de Leaflet para guardar los marcadores
+        var grupoMarcadores = L.featureGroup();
+
         puntos.forEach(function(punto) {
-            // Se añade {icon: redIcon} como segundo parámetro
-            L.marker([punto.lat, punto.lng], {icon: redIcon}) 
-                .addTo(map)
+            var marcador = L.marker([punto.lat, punto.lng], {icon: redIcon})
                 .bindPopup("<b>" + punto.nombre + "</b>");
+            
+            // Añadimos el marcador al grupo, no directamente al mapa todavía
+            marcador.addTo(grupoMarcadores);
         });
+
+        // Añadimos el grupo entero al mapa
+        grupoMarcadores.addTo(map);
+
+        // ESTA ES LA MAGIA: Ajustar el mapa para que quepan todos los marcadores del grupo
+        // El padding [50, 50] deja un pequeño margen para que no queden pegados al borde
+        map.fitBounds(grupoMarcadores.getBounds(), {padding: [50, 50]});
 
     </script>
 </body>
